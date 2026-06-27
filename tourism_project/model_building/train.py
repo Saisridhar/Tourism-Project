@@ -59,23 +59,27 @@ categorical_features = [
     'Passport', # Whether the customer holds a valid passport (0: No, 1: Yes)
     'OwnCar' # Whether the customer owns a car (0: No, 1: Yes)
 ]
-# Preprocessor
+# Set the clas weight to handle class imbalance
+class_weight = ytrain.value_counts()[0] / ytrain.value_counts()[1]
+class_weight
+
+# Define the preprocessing steps
 preprocessor = make_column_transformer(
     (StandardScaler(), numeric_features),
     (OneHotEncoder(handle_unknown='ignore'), categorical_features)
 )
 
-# Define base XGBoost Regressor
-xgb_model = xgb.XGBRegressor(random_state=42, n_jobs=-1)
+# Define base XGBoost model
+xgb_model = xgb.XGBClassifier(scale_pos_weight=class_weight, random_state=42)
 
-# Hyperparameter grid
+# Define hyperparameter grid
 param_grid = {
-    'xgbregressor__n_estimators': [50, 100, 150],
-    'xgbregressor__max_depth': [3, 5, 7],
-    'xgbregressor__learning_rate': [0.01, 0.05, 0.1],
-    'xgbregressor__subsample': [0.7, 0.8, 1.0],
-    'xgbregressor__colsample_bytree': [0.7, 0.8, 1.0],
-    'xgbregressor__reg_lambda': [0.1, 1, 10]
+    'xgbclassifier__n_estimators': [100],          # balanced bias–variance
+    'xgbclassifier__max_depth': [3],               # prevents overfitting
+    'xgbclassifier__colsample_bytree': [0.5],      # good feature subsampling
+    'xgbclassifier__colsample_bylevel': [0.5],     # stabilizes tree splits
+    'xgbclassifier__learning_rate': [0.05],        # slower, more stable learning
+    'xgbclassifier__reg_lambda': [0.5]              # moderate L2 regularization
 }
 
 # Pipeline
