@@ -104,6 +104,13 @@ with mlflow.start_run():
     y_pred_train = best_model.predict(Xtrain)
     y_pred_test = best_model.predict(Xtest)
 
+    import sklearn
+    from sklearn.metrics import mean_squared_error
+    import inspect
+
+    print("scikit-learn version:", sklearn.__version__)
+    print(inspect.signature(mean_squared_error))
+    
     # Metrics
     train_rmse = mean_squared_error(ytrain, y_pred_train, squared=False)
     test_rmse = mean_squared_error(ytest, y_pred_test, squared=False)
